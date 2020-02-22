@@ -11,9 +11,10 @@ using ParkyApi.Models.Repository.IRepository;
 
 namespace ParkyApi.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/v{version:apiVersion}/nationalparks")]
+    [ApiVersion("1.0")]
     [ApiController]
-    [ApiExplorerSettings(GroupName = "ParkyOpenApiSpecNP")]
+    //[ApiExplorerSettings(GroupName = "ParkyOpenApiSpecNP")]
     public class NationalParksController : ControllerBase
     {
         private readonly INationalParkRepository _repository;

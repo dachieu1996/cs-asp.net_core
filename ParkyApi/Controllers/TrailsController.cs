@@ -11,9 +11,10 @@ using ParkyApi.Models.Repository.IRepository;
 
 namespace ParkyApi.Controllers
 {
-    [Route("api/trails")]
+    [Route("api/v{version:apiVersion}/trails")]
+    [ApiVersion("1.0")]
     [ApiController]
-    [ApiExplorerSettings(GroupName = "ParkyOpenApiSpecTrails")]
+    //[ApiExplorerSettings(GroupName = "ParkyOpenApiSpecTrails")]
     public class TrailsController : ControllerBase
     {
         private readonly ITrailRepository _repository;
@@ -114,6 +115,17 @@ namespace ParkyApi.Controllers
             }
 
             return NoContent();
+        }
+
+        [HttpGet("GetTrailsInNationalPark/{nationalParkId:int}")]
+        public IActionResult GetTrailsInNationalPark(int nationalParkId)
+        {
+            var objList = _repository.GetTrailsInNationalPark(nationalParkId);
+            if (objList == null || objList.Count <= 0)
+                return NotFound();
+
+            var objDto = objList.Select(_mapper.Map<Trail, TrailDto>);
+            return Ok(objDto);
         }
     }
 }
