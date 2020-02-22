@@ -1,3 +1,4 @@
+# Asp.net Core Web API 
 ## Setup Project - EntityFramework
 Install package:
 * Microsoft.EntityFrameworkCore
@@ -316,4 +317,104 @@ public class NationalParksController : ControllerBase { }
 
 [ApiExplorerSettings(GroupName = "ParkyOpenApiSpecTrails")]
 public class TrailsController : ControllerBase { }
+```
+
+## Api Versioning - Api Document for versioning
+Install package: 
+* Microsoft.AspNetCore.Mvc.Versioning
+* Microsoft.AspNetCore.Mvc.Versioning.ApiExplorer
+
+Create file ConfigureSwaggerOptions.cs
+```cs
+public class ConfigureSwaggerOptions : IConfigureOptions<SwaggerGenOptions>
+{
+    private readonly IApiVersionDescriptionProvider _provider;
+
+    public ConfigureSwaggerOptions(IApiVersionDescriptionProvider provider)
+    {
+        _provider = provider;
+    }
+    public void Configure(SwaggerGenOptions options)
+    {
+        foreach (var desc in _provider.ApiVersionDescriptions)
+        {
+            options.SwaggerDoc(
+                desc.GroupName, new Microsoft.OpenApi.Models.OpenApiInfo()
+                {
+                    Title = $"Parky API {desc.ApiVersion}",
+                    Version = desc.ApiVersion.ToString()
+                });
+        }
+    }
+}
+```
+```cs
+namespace ParkyApi
+{
+    public class Startup
+    { 
+        public void ConfigureServices(IServiceCollection services)
+        {
+            ...
+            services.AddApiVersioning(options =>
+            {
+                options.AssumeDefaultVersionWhenUnspecified = true;
+                options.DefaultApiVersion = new ApiVersion(1, 0);
+                options.ReportApiVersions = true;
+            });
+            services.AddVersionedApiExplorer(options => options.GroupNameFormat = "'v'VVV");
+            services.AddTransient<IConfigureOptions<SwaggerGenOptions>, ConfigureSwaggerOptions>();
+            services.AddSwaggerGen();
+            ...
+        }
+
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IApiVersionDescriptionProvider provider)
+        {
+            ...
+            app.UseSwagger();
+            app.UseSwaggerUI(options =>
+            {
+                foreach (var desc in provider.ApiVersionDescriptions)
+                {
+                    options.SwaggerEndpoint($"/swagger/{desc.GroupName}/swagger.json",desc.GroupName.ToUpperInvariant());
+                }
+
+                options.RoutePrefix = "";
+            });
+            ...
+        }
+    }
+}
+```
+
+# Asp.net Core MVC
+## Setup Project
+Razor runtime compilation: Install package Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation
+```cs
+public class Startup
+{
+    public void ConfigureServices(IServiceCollection services)
+    {
+        ...
+        services.AddControllersWithViews().AddRazorRuntimeCompilation();
+        services.AddHttpClient();
+        ...
+    }
+}
+```
+
+## Create Repository
+Create file Repository/Interface/IRepository.cs
+```
+public interface IRepository<T> where T : class
+{
+    Task<T> GetAsync(string url, int id);
+    Task<IEnumerable<T>> GetAllAsync(string url);
+    Task<bool> CreateAsync(string url, T objToCreate);
+    Task<bool> UpdateAsync(string url, T objToUpdate);
+    Task<bool> DeleteAsync(string url, int id);
+}
+```
+
+Create file Repository/Repository.cs
 ```
