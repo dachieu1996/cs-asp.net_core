@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using ParkyApi.Models;
@@ -42,6 +43,7 @@ namespace ParkyApi.Controllers
         }
 
         [HttpGet("{id:int}", Name = "GetTrail")]
+        [Authorize(Roles = "Admin")]
         public IActionResult GetTrail(int id)
         {
             var obj = _repository.GetTrail(id);

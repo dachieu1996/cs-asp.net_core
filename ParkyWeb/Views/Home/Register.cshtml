@@ -1,0 +1,21 @@
+﻿@model User
+@{
+    ViewData["Title"] = "Register";
+}
+
+<h1>Register</h1>
+
+
+@using (Html.BeginForm("Register", "Home"))
+{
+    @Html.ValidationSummary(false, "", new { @class = "text-danger" })
+
+    <div class="form-group">
+        @Html.TextBoxFor(x => x.UserName, "", new { @class = "form-control", placeholder = "Username ..." })
+    </div>
+    <div class="form-group">
+        @Html.PasswordFor(x => x.Password, new { @class = "form-control", placeholder = "Password ..." })
+    </div>
+
+    <button type="submit">Register</button>
+}
